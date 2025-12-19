@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { loadTreatments } from "./loadTreatments";
+import { loadTreatments, Treatment } from "./loadTreatments";
 
 /**
  * ATONM – minimal test runtime (v1)
  * Purpose: Validate flow, questions, stop, and return control.
- * No YAML, no recommendations, no persistence.
+ * YAML-backed, non-diagnostic, non-advisory.
  */
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | "done";
@@ -14,7 +14,7 @@ interface ATONMState {
   answers: Record<string, string>;
 }
 
-const QUESTIONS: Record<number, string> = {
+const QUESTIONS: Record<1 | 2 | 3 | 4 | 5 | 6, string> = {
   1: `Q1 – Hvordan oplever du det, du står i, overordnet?
 A. Mest kropsligt
 B. Mest mentalt eller følelsesmæssigt
@@ -52,6 +52,40 @@ C. Begge dele
 D. Ikke umiddelbart`,
 };
 
+/**
+ * Minimal, regelbaseret narrowing (v1)
+ * Ingen scoring, ingen anbefaling
+ */
+function narrow(
+  treatments: Treatment[],
+  answers: Record<string, string>
+): Treatment[] {
+  let result = [...treatments];
+
+  // Q1 – overordnet oplevelse
+  if (answers.Q1 === "A") {
+    result = result.filter((t) => t.category === "body_regulation");
+  }
+  if (answers.Q1 === "B") {
+    result = result.filter((t) => t.category === "psyche_consciousness");
+  }
+
+  // Q3 – præference
+  if (answers.Q3 === "A") {
+    result = result.filter((t) => t.focus_profile.body >= 3);
+  }
+  if (answers.Q3 === "B") {
+    result = result.filter((t) => t.focus_profile.mind >= 3);
+  }
+
+  // Q6 – økonomi
+  if (answers.Q6 === "A" || answers.Q6 === "C") {
+    result = result.filter((t) => t.cost_level !== "high");
+  }
+
+  return result.slice(0, 3);
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
 
@@ -62,7 +96,7 @@ export async function POST(req: Request) {
 
   const input: string | undefined = body.message;
 
-  // Hvis vi er færdige
+  // Allerede afsluttet
   if (state.step === "done") {
     return NextResponse.json({
       reply:
@@ -73,38 +107,35 @@ export async function POST(req: Request) {
     });
   }
 
-  // Gem svar på forrige spørgsmål
-  if (input && state.step !== 1) {
+  // Gem svar på forrige spørgsmål (Q1–Q5)
+  if (input && typeof state.step === "number" && state.step > 1) {
     state.answers[`Q${state.step - 1}`] = input.trim();
   }
 
-  // Hvis sidste spørgsmål er besvaret → afslut
-  if (state.step === 7) {
-    state.step = "done";
+  // Hvis Q6 besvares → afslut
+  if (state.step === 6 && input) {
+    state.answers["Q6"] = input.trim();
+
+    const treatments = loadTreatments();
+    const narrowed = narrow(treatments, state.answers);
 
     return NextResponse.json({
       reply:
         "ATONM – orientering afsluttet.\n\n" +
-        "Eksempel på output (test):\n" +
-        "- Hypnoterapi\n" +
-        "- NADA\n\n" +
-        "Dette er ikke en anbefaling, men et test-output.",
-      state,
+        "Mulige retninger (test):\n" +
+        narrowed.map((t) => `- ${t.id}`).join("\n") +
+        "\n\nDette er ikke en anbefaling.",
       done: true,
     });
   }
 
-  // Send næste spørgsmål
-  const question = QUESTIONS[state.step as number];
-
-  const response = {
-    reply: question,
+  // Ellers: send næste spørgsmål
+  return NextResponse.json({
+    reply: QUESTIONS[state.step],
     state: {
-      step: (state.step as number) + 1,
+      step: (state.step + 1) as Step,
       answers: state.answers,
     },
     done: false,
-  };
-
-  return NextResponse.json(response);
+  });
 }
