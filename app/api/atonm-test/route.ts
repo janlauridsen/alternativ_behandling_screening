@@ -52,17 +52,12 @@ C. Begge dele
 D. Ikke umiddelbart`,
 };
 
-/**
- * Minimal, regelbaseret narrowing (v1)
- * Ingen scoring, ingen anbefaling
- */
 function narrow(
   treatments: Treatment[],
   answers: Record<string, string>
 ): Treatment[] {
   let result = [...treatments];
 
-  // Q1 – overordnet oplevelse
   if (answers.Q1 === "A") {
     result = result.filter((t) => t.category === "body_regulation");
   }
@@ -70,7 +65,6 @@ function narrow(
     result = result.filter((t) => t.category === "psyche_consciousness");
   }
 
-  // Q3 – præference
   if (answers.Q3 === "A") {
     result = result.filter((t) => t.focus_profile.body >= 3);
   }
@@ -78,7 +72,6 @@ function narrow(
     result = result.filter((t) => t.focus_profile.mind >= 3);
   }
 
-  // Q6 – økonomi
   if (answers.Q6 === "A" || answers.Q6 === "C") {
     result = result.filter((t) => t.cost_level !== "high");
   }
@@ -94,7 +87,21 @@ export async function POST(req: Request) {
     answers: {},
   };
 
-  const input: string | undefined = body.message;
+  const rawInput: string | undefined = body.message;
+
+  const input =
+    typeof rawInput === "string"
+      ? rawInput.trim().toUpperCase().charAt(0)
+      : undefined;
+
+  // Start ATONM hvis der ikke er input endnu
+  if (!input && state.step === 1) {
+    return NextResponse.json({
+      reply: QUESTIONS[1],
+      state,
+      done: false,
+    });
+  }
 
   // Allerede afsluttet
   if (state.step === "done") {
@@ -108,13 +115,18 @@ export async function POST(req: Request) {
   }
 
   // Gem svar på forrige spørgsmål (Q1–Q5)
-  if (input && typeof state.step === "number" && state.step > 1) {
-    state.answers[`Q${state.step - 1}`] = input.trim();
+  if (
+    input &&
+    ["A", "B", "C", "D"].includes(input) &&
+    typeof state.step === "number" &&
+    state.step > 1
+  ) {
+    state.answers[`Q${state.step - 1}`] = input;
   }
 
   // Hvis Q6 besvares → afslut
-  if (state.step === 6 && input) {
-    state.answers["Q6"] = input.trim();
+  if (state.step === 6 && input && ["A", "B", "C", "D"].includes(input)) {
+    state.answers["Q6"] = input;
 
     const treatments = loadTreatments();
     const narrowed = narrow(treatments, state.answers);
