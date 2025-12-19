@@ -18,10 +18,14 @@ const INITIAL_STATE: ATONMState = {
 
 export function atonmReducer(
   state: ATONMState | null | undefined,
-  event: ATONMEvent
+  event: ATONMEvent | null | undefined
 ): ATONMState {
-  // 🔑 Gør reducer total
   const current = state ?? INITIAL_STATE;
+
+  // 🔒 Manglende event → ingen ændring
+  if (!event) {
+    return current;
+  }
 
   if (current.done) {
     return current;
