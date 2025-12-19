@@ -1,5 +1,5 @@
 import YAML from "yaml";
-import treatmentsRaw from "../../treatments.yaml";
+import treatmentsRaw from "../../atonm-data/treatments.yaml";
 
 export type Treatment = {
   id: string;
