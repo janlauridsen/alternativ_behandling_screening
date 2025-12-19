@@ -1,5 +1,5 @@
-import ATONMTester from "../components/ATONMTester";
-import FoldoutText from "../components/FoldoutText";
+import ATONMTester from "./components/ATONMTester";
+import FoldoutText from "./components/FoldoutText";
 
 export default function Page() {
   return (
@@ -26,15 +26,10 @@ export default function Page() {
           title="Systemprompt – fri samtale"
           preview="Test af generel samtaleadfærd og etiske grænser."
         >
-          <p>
-            Denne test er til fri tekstbaseret dialog.
-          </p>
+          <p>Denne test er til fri tekstbaseret dialog.</p>
           <p>
             Ingen struktur, ingen indsnævring. Bruges kun til at vurdere
             tone, afgrænsning og etik.
-          </p>
-          <p>
-            (Denne del bruger fortsat TestBox / prompt-test API)
           </p>
         </FoldoutText>
 
