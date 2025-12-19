@@ -1,5 +1,5 @@
-import FoldoutText from "./components/FoldoutText";
-import TestBox from "./components/TestBox";
+import ATONMTester from "../components/ATONMTester";
+import FoldoutText from "../components/FoldoutText";
 
 export default function Page() {
   return (
@@ -11,59 +11,48 @@ export default function Page() {
         padding: "0 16px",
       }}
     >
-      <h1>Intern prompt-test</h1>
+      <h1>Intern test</h1>
 
-      {/* Lokal CSS – kun til denne side */}
-      <style>{`
-        .test-grid {
-          display: block;
-        }
-
-        @media (min-width: 1100px) {
-          .test-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            align-items: start;
-          }
-        }
-      `}</style>
-
-      <div className="test-grid">
-        {/* SYSTEMPROMPT */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "24px",
+          alignItems: "start",
+        }}
+      >
+        {/* SYSTEMPROMPT – fri chat */}
         <FoldoutText
           title="Systemprompt – fri samtale"
           preview="Test af generel samtaleadfærd og etiske grænser."
         >
           <p>
-            Test af den primære systemprompt uden strukturering eller
-            indsnævring.
+            Denne test er til fri tekstbaseret dialog.
           </p>
-
           <p>
-            Systemet giver generel information, undgår rådgivning og holder sig
-            inden for definerede etiske og juridiske rammer.
+            Ingen struktur, ingen indsnævring. Bruges kun til at vurdere
+            tone, afgrænsning og etik.
           </p>
-
-          <TestBox endpoint="/api/prompt-test" />
+          <p>
+            (Denne del bruger fortsat TestBox / prompt-test API)
+          </p>
         </FoldoutText>
 
-        {/* ATONM */}
+        {/* ATONM – korrekt test */}
         <FoldoutText
           title="ATONM – orientering og indsnævring"
-          preview="Test af ATONM-modellen isoleret fra fri samtale."
+          preview="Struktureret test af ATONM som state-machine."
         >
           <p>
-            Test af ATONM som selvstændigt orienteringsmodul med fast
-            spørgestruktur.
+            Denne test anvender ATONM som et event-baseret
+            orienteringsmodul.
           </p>
-
           <p>
-            Modellen reducerer mulighedsrum uden at anbefale, rangere eller
-            forudsige effekt.
+            Ingen fri tekst. Ingen tolkning. Kun faste valg og
+            deterministisk flow.
           </p>
 
-          <TestBox endpoint="/api/atonm-test" />
+          <ATONMTester />
         </FoldoutText>
       </div>
     </main>
