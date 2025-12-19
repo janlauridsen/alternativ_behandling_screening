@@ -1,35 +1,45 @@
-export default function Home() {
+import FoldoutText from "./components/FoldoutText";
+import TestBox from "./components/TestBox";
+
+export default function Page() {
   return (
-    <main
-      style={{
-        maxWidth: "640px",
-        margin: "4rem auto",
-        padding: "0 1rem",
-        lineHeight: 1.6,
-      }}
-    >
-      <h1>Alternativ Behandling Screening</h1>
+    <main style={{ maxWidth: "900px", margin: "40px auto", fontFamily: "sans-serif" }}>
+      <h1>Intern prompt-test</h1>
 
-      <p>
-        Dette site er et orienteringsrum for personer, der er nysgerrige på
-        alternative behandlingsformer.
-      </p>
+      {/* SYSTEMPROMPT */}
+      <FoldoutText
+        title="Systemprompt – fri samtale"
+        preview="Test af generel samtaleadfærd og etiske grænser."
+      >
+        <p>
+          Test af den primære systemprompt uden strukturering eller indsnævring.
+          Samtalen er åben og formes alene af brugerinput.
+        </p>
 
-      <p>
-        Indholdet er informativt og ikke rådgivende. Der gives ingen
-        anbefalinger, vurderinger eller garantier.
-      </p>
+        <p>
+          Systemet giver generel information, undgår rådgivning og holder sig
+          inden for definerede etiske og juridiske rammer.
+        </p>
 
-      <p>
-        Formålet er at skabe overblik og refleksion – ikke at pege på løsninger
-        eller forløb.
-      </p>
+        <TestBox endpoint="/api/prompt-test" />
+      </FoldoutText>
 
-      <hr style={{ margin: "2rem 0" }} />
+      {/* ATONM */}
+      <FoldoutText
+        title="ATONM – orientering og indsnævring"
+        preview="Test af ATONM-modellen isoleret fra fri samtale."
+      >
+        <p>
+          Test af ATONM som selvstændigt orienteringsmodul med fast spørgestruktur.
+        </p>
 
-      <small>
-        Dette er en tidlig testversion. Indhold og funktionalitet kan ændres.
-      </small>
+        <p>
+          Modellen reducerer mulighedsrum uden at anbefale, rangere eller forudsige
+          effekt.
+        </p>
+
+        <TestBox endpoint="/api/atonm-test" />
+      </FoldoutText>
     </main>
   );
 }
