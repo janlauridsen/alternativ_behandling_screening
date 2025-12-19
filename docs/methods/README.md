@@ -16,3 +16,51 @@ Beskrivelserne:
 
 Metodebeskrivelserne fungerer som referencegrundlag
 for både brugere og systemets svar.
+
+### typer af alternativ behandling ###
+
+Krops- og reguleringsorienterede
+
+Akupunktur (klassisk)
+
+NADA
+
+Zoneterapi
+
+Kranio-sakral terapi
+
+Massageformer
+
+Osteopati
+
+Psyke- og bevidsthedsorienterede
+
+Hypnoterapi
+
+Mindfulness / meditation
+
+Samtaleterapi-inspirerede metoder
+
+Coaching
+
+Energi / holistiske / alternative
+
+Kinesiologi
+
+Healing (bredt defineret)
+
+Reiki
+
+Chakrabalancering
+
+Clairvoyance / spirituel vejledning
+
+Livsstil / adfærd
+
+Kostvejledning
+
+Kosttilskud
+
+Detox / udrensning
+
+Åndedrætsteknikker
