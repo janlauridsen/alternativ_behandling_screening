@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
+
+export const runtime = "nodejs";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-//
-
-import fs from "fs";
-import path from "path";
-
-const SYSTEM_PROMPT = fs.readFileSync(
-  path.join(process.cwd(), "docs/runtime/system-prompt-v1.txt"),
-  "utf8"
+const promptPath = path.join(
+  process.cwd(),
+  "docs/runtime/system-prompt-v1.txt"
 );
+
+const SYSTEM_PROMPT = fs.readFileSync(promptPath, "utf8");
 
 export async function POST(req: Request) {
   const { message } = await req.json();
