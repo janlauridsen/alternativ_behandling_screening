@@ -10,30 +10,45 @@ export type ATONMEvent =
   | { type: "START" }
   | { type: "ANSWER"; value: number };
 
+const INITIAL_STATE: ATONMState = {
+  index: 0,
+  answers: {},
+  done: false,
+};
+
 export function atonmReducer(
-  state: ATONMState,
+  state: ATONMState | null | undefined,
   event: ATONMEvent
 ): ATONMState {
-  if (state.done) return state;
+  // 🔑 Gør reducer total
+  const current = state ?? INITIAL_STATE;
+
+  if (current.done) {
+    return current;
+  }
 
   if (event.type === "START") {
-    return { index: 0, answers: {}, done: false };
+    return INITIAL_STATE;
   }
 
   if (event.type === "ANSWER") {
-    const q = QUESTIONS[state.index];
-    const nextAnswers = { ...state.answers, [q.id]: event.value };
+    const q = QUESTIONS[current.index];
+    const nextAnswers = { ...current.answers, [q.id]: event.value };
 
-    if (state.index === QUESTIONS.length - 1) {
-      return { index: state.index, answers: nextAnswers, done: true };
+    if (current.index === QUESTIONS.length - 1) {
+      return {
+        index: current.index,
+        answers: nextAnswers,
+        done: true,
+      };
     }
 
     return {
-      index: state.index + 1,
+      index: current.index + 1,
       answers: nextAnswers,
       done: false,
     };
   }
 
-  return state;
+  return current;
 }
