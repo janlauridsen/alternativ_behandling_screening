@@ -1,3 +1,5 @@
+// app/api/handoff-chat/route.ts
+
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import fs from "fs";
@@ -7,26 +9,27 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Indlæs eksisterende systemprompt
+// Basissystemprompt (fælles runtime-ramme)
 const SYSTEM_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "docs/runtime/system-prompt-v2.txt"),
   "utf8"
 );
 
-// Handoff-instruktion (kort, normativ)
+// Handoff-instruktion – ATONM v3.1
 const HANDOFF_INSTRUCTION = `
 You are continuing a conversation after an ATONM orientation.
 
-The user has completed a structured, non-diagnostic narrowing process.
+The user has completed a structured, non-diagnostic narrowing and descriptive orientation.
 
 You must:
-- Start by briefly summarizing the orientation in neutral language.
-- Mention remaining approaches descriptively, without recommending or prioritizing.
-- Do not reopen narrowing or ask diagnostic questions.
-- Do not give advice or promise outcomes.
-- End with one open-ended question asking what the user would like to explore further.
+- Summarize the orientation outcome in neutral, descriptive language.
+- Refer to remaining approaches only as different forms or frames of engagement.
+- Avoid recommendations, prioritization, or suitability claims.
+- Do not ask diagnostic or follow-up narrowing questions.
+- Do not promise outcomes or imply effectiveness.
+- End with a single, open-ended question inviting reflection or curiosity.
 
-This is an orientation handoff, not a treatment discussion.
+This handoff is explanatory and exploratory, not advisory.
 `;
 
 export async function POST(req: Request) {
