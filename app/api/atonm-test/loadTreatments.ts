@@ -1,18 +1,9 @@
+// app/api/atonm-test/loadTreatments.ts
+
 import fs from "fs";
 import path from "path";
 import YAML from "yaml";
-
-export type Treatment = {
-  id: string;
-  experienceOrientation: "body" | "mind" | "mixed" | "abstract";
-  interactionForm: "passive" | "active" | "mixed" | "dialog";
-  guidanceLevel: "practitioner_led" | "shared" | "self_directed";
-  abstractionLevel: "concrete" | "mixed" | "interpretive";
-  structuringDegree: "fixed" | "semi_structured" | "open";
-  practitionerDependency: "low" | "medium" | "high";
-  temporalStructure: "bounded" | "recurring" | "ongoing";
-  physicalContact: "none" | "light" | "direct";
-};
+import type { Treatment } from "@/app/atonm/types";
 
 export function loadTreatments(): Treatment[] {
   const filePath = path.join(
@@ -26,7 +17,7 @@ export function loadTreatments(): Treatment[] {
   const raw = fs.readFileSync(filePath, "utf8");
   const parsed = YAML.parse(raw);
 
-  if (typeof parsed !== "object" || Array.isArray(parsed) || parsed === null) {
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
     throw new Error("Expected treatments.yaml to be an object map");
   }
 
