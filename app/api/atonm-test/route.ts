@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { narrow } from "../../atonm/narrow";
-import { loadTreatments } from "../../atonm/loadTreatments";
+import { loadTreatments } from "./loadTreatments";
 
 /**
  * ATONM v1.1 – backend runtime
