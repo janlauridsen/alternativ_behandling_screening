@@ -3,7 +3,7 @@
 import fs from "fs";
 import path from "path";
 import YAML from "yaml";
-import type { Treatment } from "@/app/atonm/types";
+import type { Treatment } from "../../atonm/types";
 
 export function loadTreatments(): Treatment[] {
   const filePath = path.join(
