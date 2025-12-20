@@ -23,8 +23,9 @@ export default function ATONMTester() {
   >(null);
 
   const [handoffContext, setHandoffContext] = useState<any>(null);
+  const [handoffReply, setHandoffReply] = useState<string | null>(null);
 
-  // -------- helpers --------
+  // ---------- helpers ----------
 
   function decideStartIndex(text: string): number {
     const t = text.toLowerCase();
@@ -45,6 +46,7 @@ export default function ATONMTester() {
     setResult(null);
     setRemainingCount(null);
     setHandoffContext(null);
+    setHandoffReply(null);
   }
 
   async function send(event: any) {
@@ -67,18 +69,26 @@ export default function ATONMTester() {
       return;
     }
 
-    if (data.state) {
-      setState(data.state);
-    }
-
-    if (typeof data.remainingCount === "number") {
+    if (data.state) setState(data.state);
+    if (typeof data.remainingCount === "number")
       setRemainingCount(data.remainingCount);
-    }
   }
 
-  // -------- UI --------
+  async function startHandoff() {
+    setPhase("handoff");
 
-  // 🔁 Altid synlig genstart
+    const res = await fetch("/api/handoff-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ handoffContext }),
+    });
+
+    const data = await res.json();
+    setHandoffReply(data.reply);
+  }
+
+  // ---------- UI ----------
+
   const RestartButton = (
     <button onClick={resetAll} style={{ marginBottom: "16px" }}>
       🔁 Start ATONM forfra
@@ -171,40 +181,24 @@ export default function ATONMTester() {
           <em>Dette er ikke en anbefaling.</em>
         </p>
 
-        <button onClick={() => setPhase("handoff")}>
+        <button onClick={startHandoff}>
           Jeg vil gerne vide mere
         </button>
       </div>
     );
   }
 
-  // ---------- OVERGANG TIL GENEREL SAMTALE ----------
+  // ---------- GENEREL SAMTALE (handoff) ----------
   if (phase === "handoff") {
     return (
       <div>
         {RestartButton}
 
-        <p>
-          Vi har nu afsluttet orienteringen. Jeg kan opsummere eller uddybe,
-          hvis der er noget i overblikket, du vil høre mere om.
-        </p>
-
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: "12px",
-            fontSize: "0.85em",
-            marginTop: "12px",
-          }}
-        >
-          {JSON.stringify(handoffContext, null, 2)}
-        </pre>
-
-        <p style={{ marginTop: "12px" }}>
-          <em>
-            (Næste skridt: denne kontekst sendes til den generelle systemprompt)
-          </em>
-        </p>
+        {handoffReply ? (
+          <div style={{ whiteSpace: "pre-line" }}>{handoffReply}</div>
+        ) : (
+          <p>Indlæser …</p>
+        )}
       </div>
     );
   }
