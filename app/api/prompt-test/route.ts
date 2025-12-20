@@ -7,6 +7,7 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, 
 });
 
+
 // Indlæs systemprompt (generel samtale)
 const SYSTEM_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "docs/runtime/system-prompt-v2.txt"),
