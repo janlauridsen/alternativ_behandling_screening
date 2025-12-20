@@ -1,28 +1,19 @@
-import YAML from "yaml";
-import treatmentsRaw from "../../atonm-data/treatments.yaml";
+// app/api/atonm-data/loadTreatments.ts
 
+import YAML from "yaml";
+import treatmentsRaw from "./treatments.yaml";
+
+// Type A v3.1 – runtime shape
 export type Treatment = {
   id: string;
-  category: string;
-  focus_profile: {
-    body: number;
-    mind: number;
-    energy_spiritual: number;
-    lifestyle_behavior: number;
-  };
-  interaction_style: {
-    passive: number;
-    active: number;
-    dialog_based: number;
-  };
-  abstraction_level: {
-    concrete: number;
-    interpretive: number;
-  };
-  practitioner_dependency: string;
-  typical_use_case: string[];
-  evidence_orientation: string;
-  cost_level: string;
+  experienceOrientation: "body" | "mind" | "mixed" | "abstract";
+  interactionForm: "passive" | "active" | "mixed" | "dialog";
+  guidanceLevel: "practitioner_led" | "shared" | "self_directed";
+  abstractionLevel: "concrete" | "mixed" | "interpretive";
+  structuringDegree: "fixed" | "semi_structured" | "open";
+  practitionerDependency: "low" | "medium" | "high";
+  temporalStructure: "bounded" | "recurring" | "ongoing";
+  physicalContact: "none" | "light" | "direct";
 };
 
 export function loadTreatments(): Treatment[] {
