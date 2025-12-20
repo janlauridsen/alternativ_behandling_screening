@@ -1,121 +1,131 @@
-# ATONM – Treatment Metadata
-# Version: 1.0
-# Status: Active
+# app/api/atonm-data/treatments.yaml
+
+# ATONM v3.1
+
+# Status: Active · Normativ
+
 # Scope: Non-diagnostic, orientational use only
-# This file defines machine-usable characteristics.
-# It must not encode recommendations or outcome claims.
 
-- id: hypnoterapi
-  category: psyche_consciousness
+# This file defines descriptive Type A method characteristics only.
 
-  focus_profile:
-    body: 1
-    mind: 4
-    energy_spiritual: 0
-    lifestyle_behavior: 0
+# No weights, heuristics, use-cases, evidence or cost metadata are included.
 
-  interaction_style:
-    passive: 1
-    active: 2
-    dialog_based: 4
+* id: hypnoterapi
+  experienceOrientation: mind
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: mixed
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: bounded
+  physicalContact: none
 
-  abstraction_level:
-    concrete: 2
-    interpretive: 3
+* id: zoneterapi
+  experienceOrientation: body
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: concrete
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: recurring
+  physicalContact: direct
 
-  practitioner_dependency: high
+* id: healing
+  experienceOrientation: abstract
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: interpretive
+  structuringDegree: open
+  practitionerDependency: high
+  temporalStructure: bounded
+  physicalContact: light
 
-  typical_use_case:
-    - situational
-    - general_support
+* id: massage
+  experienceOrientation: body
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: concrete
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: recurring
+  physicalContact: direct
 
-  evidence_orientation: medium
+* id: akupunktur
+  experienceOrientation: body
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: mixed
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: recurring
+  physicalContact: direct
 
-  cost_level: medium
+* id: nada
+  experienceOrientation: body
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: concrete
+  structuringDegree: fixed
+  practitionerDependency: medium
+  temporalStructure: recurring
+  physicalContact: light
 
+* id: mindfulness
+  experienceOrientation: mind
+  interactionForm: active
+  guidanceLevel: shared
+  abstractionLevel: concrete
+  structuringDegree: semi_structured
+  practitionerDependency: low
+  temporalStructure: ongoing
+  physicalContact: none
 
-- id: nada
-  category: body_regulation
+* id: kropsterapi
+  experienceOrientation: body
+  interactionForm: mixed
+  guidanceLevel: practitioner_led
+  abstractionLevel: mixed
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: recurring
+  physicalContact: direct
 
-  focus_profile:
-    body: 4
-    mind: 1
-    energy_spiritual: 0
-    lifestyle_behavior: 0
+* id: kinesiologi
+  experienceOrientation: mixed
+  interactionForm: mixed
+  guidanceLevel: practitioner_led
+  abstractionLevel: interpretive
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: bounded
+  physicalContact: light
 
-  interaction_style:
-    passive: 4
-    active: 1
-    dialog_based: 1
+* id: kraniosakral_terapi
+  experienceOrientation: body
+  interactionForm: passive
+  guidanceLevel: practitioner_led
+  abstractionLevel: mixed
+  structuringDegree: semi_structured
+  practitionerDependency: high
+  temporalStructure: recurring
+  physicalContact: light
 
-  abstraction_level:
-    concrete: 4
-    interpretive: 0
+* id: yoga_terapeutisk
+  experienceOrientation: body
+  interactionForm: active
+  guidanceLevel: shared
+  abstractionLevel: concrete
+  structuringDegree: semi_structured
+  practitionerDependency: low
+  temporalStructure: ongoing
+  physicalContact: none
 
-  practitioner_dependency: high
-
-  typical_use_case:
-    - situational
-    - general_support
-
-  evidence_orientation: experiential
-
-  cost_level: low
-
-
-- id: zoneterapi
-  category: body_regulation
-
-  focus_profile:
-    body: 4
-    mind: 1
-    energy_spiritual: 0
-    lifestyle_behavior: 0
-
-  interaction_style:
-    passive: 3
-    active: 1
-    dialog_based: 1
-
-  abstraction_level:
-    concrete: 3
-    interpretive: 1
-
-  practitioner_dependency: high
-
-  typical_use_case:
-    - general_support
-    - exploratory
-
-  evidence_orientation: low
-
-  cost_level: medium
-
-
-- id: kinesiologi
-  category: energy_holistic
-
-  focus_profile:
-    body: 2
-    mind: 2
-    energy_spiritual: 3
-    lifestyle_behavior: 0
-
-  interaction_style:
-    passive: 2
-    active: 2
-    dialog_based: 2
-
-  abstraction_level:
-    concrete: 1
-    interpretive: 4
-
-  practitioner_dependency: high
-
-  typical_use_case:
-    - exploratory
-    - existential
-
-  evidence_orientation: experiential
-
-  cost_level: medium
+* id: andedraetsbaseret_terapi
+  experienceOrientation: mixed
+  interactionForm: active
+  guidanceLevel: shared
+  abstractionLevel: mixed
+  structuringDegree: semi_structured
+  practitionerDependency: medium
+  temporalStructure: bounded
+  physicalContact: none
