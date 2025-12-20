@@ -7,18 +7,25 @@ export interface TestBoxProps {
   initialSystemContext?: any;
 }
 
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 export default function TestBox(props: TestBoxProps) {
   const { endpoint, initialSystemContext } = props;
 
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<
-    { role: "user" | "assistant"; content: string }[]
-  >([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   async function send() {
     if (!input.trim()) return;
 
-    const userMessage = { role: "user", content: input };
+    const userMessage: Message = {
+      role: "user",
+      content: input,
+    };
+
     setMessages((m) => [...m, userMessage]);
     setInput("");
 
@@ -33,10 +40,12 @@ export default function TestBox(props: TestBoxProps) {
 
     const data = await res.json();
 
-    setMessages((m) => [
-      ...m,
-      { role: "assistant", content: data.reply },
-    ]);
+    const assistantMessage: Message = {
+      role: "assistant",
+      content: data.reply,
+    };
+
+    setMessages((m) => [...m, assistantMessage]);
   }
 
   return (
