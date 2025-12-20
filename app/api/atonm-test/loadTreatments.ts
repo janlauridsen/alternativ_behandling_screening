@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import YAML from "yaml";
 
 // Type A v3.1 – runtime shape
@@ -13,14 +15,20 @@ export type Treatment = {
   physicalContact: "none" | "light" | "direct";
 };
 
-// treatmentsRaw skal være en YAML-string (importeret eller defineret)
-import treatmentsRaw from "./treatments.yaml";
-
 export function loadTreatments(): Treatment[] {
-  const parsed = YAML.parse(treatmentsRaw);
+  const filePath = path.join(
+    process.cwd(),
+    "app",
+    "api",
+    "atonm-data",
+    "treatments.yaml"
+  );
+
+  const raw = fs.readFileSync(filePath, "utf8");
+  const parsed = YAML.parse(raw);
 
   if (!Array.isArray(parsed)) {
-    throw new Error("Expected treatments YAML to be an array");
+    throw new Error("Expected treatments.yaml to contain an array");
   }
 
   return parsed as Treatment[];
