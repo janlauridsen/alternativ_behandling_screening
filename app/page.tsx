@@ -1,3 +1,6 @@
+
+import FoldoutText from "./components/FoldoutText";
+
 export default function Page() {
   return (
     <main
