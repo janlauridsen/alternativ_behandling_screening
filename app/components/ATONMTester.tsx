@@ -9,75 +9,205 @@ type ATONMState = {
   done: boolean;
 };
 
+type Phase = "intake" | "atonm" | "finished" | "handoff";
+
 export default function ATONMTester() {
+  const [phase, setPhase] = useState<Phase>("intake");
+  const [intakeText, setIntakeText] = useState("");
+
   const [state, setState] = useState<ATONMState | null>(null);
-  const [result, setResult] = useState<string[] | null>(null);
-  const [finished, setFinished] = useState(false);
+  const [remainingCount, setRemainingCount] = useState<number | null>(null);
+
+  const [result, setResult] = useState<
+    { id: string; text: string }[] | null
+  >(null);
+
+  const [handoffContext, setHandoffContext] = useState<any>(null);
+
+  // -------- helpers --------
+
+  function decideStartIndex(text: string): number {
+    const t = text.toLowerCase();
+    if (
+      t.includes("fly") ||
+      t.includes("eksamen") ||
+      t.includes("præsentation")
+    ) {
+      return 2; // Q3
+    }
+    return 0; // Q1 default
+  }
+
+  function resetAll() {
+    setPhase("intake");
+    setIntakeText("");
+    setState(null);
+    setResult(null);
+    setRemainingCount(null);
+    setHandoffContext(null);
+  }
 
   async function send(event: any) {
-    // 🔒 Hvis færdig → gør intet
-    if (finished) return;
-
     const res = await fetch("/api/atonm-test", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ state, event }),
+      body: JSON.stringify({
+        state,
+        event,
+        intakeText,
+      }),
     });
 
     const data = await res.json();
 
     if (data.done) {
       setResult(data.result ?? []);
-      setFinished(true);
+      setHandoffContext(data.handoffContext);
+      setPhase("finished");
       return;
     }
 
-    setState(data.state);
+    if (data.state) {
+      setState(data.state);
+    }
+
+    if (typeof data.remainingCount === "number") {
+      setRemainingCount(data.remainingCount);
+    }
   }
 
-  // Startskærm
-  if (!state && !finished) {
+  // -------- UI --------
+
+  // 🔁 Altid synlig genstart
+  const RestartButton = (
+    <button onClick={resetAll} style={{ marginBottom: "16px" }}>
+      🔁 Start ATONM forfra
+    </button>
+  );
+
+  // ---------- OPEN INTAKE ----------
+  if (phase === "intake") {
     return (
-      <button onClick={() => send({ type: "START" })}>
-        Start ATONM
-      </button>
+      <div>
+        {RestartButton}
+
+        <p>
+          Hvis du har lyst, kan du kort beskrive, hvad der fylder mest for dig
+          lige nu. Det bruges kun til at afgøre, hvilket afklarende spørgsmål vi
+          starter med.
+        </p>
+
+        <textarea
+          rows={3}
+          value={intakeText}
+          onChange={(e) => setIntakeText(e.target.value)}
+          placeholder="(valgfrit – 1–2 sætninger)"
+          style={{ width: "100%", marginBottom: "12px" }}
+        />
+
+        <button
+          onClick={() => {
+            const startIndex = decideStartIndex(intakeText);
+            setState({ index: startIndex, answers: {}, done: false });
+            setPhase("atonm");
+          }}
+        >
+          Fortsæt
+        </button>
+      </div>
     );
   }
 
-  // Afsluttet
-  if (finished) {
+  // ---------- ATONM FLOW ----------
+  if (phase === "atonm" && state) {
+    const q = QUESTIONS[state.index];
+
     return (
       <div>
-        <h3>ATONM afsluttet</h3>
-        <p>Mulige retninger (test):</p>
-        <ul>
-          {result?.map((r) => (
-            <li key={r}>{r}</li>
+        {RestartButton}
+
+        <h3>{q.text}</h3>
+
+        {remainingCount !== null && (
+          <p style={{ fontSize: "0.9em", opacity: 0.7 }}>
+            Mulige behandlingsformer tilbage: {remainingCount}
+          </p>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {q.options.map((o, i) => (
+            <button
+              key={i}
+              onClick={() => send({ type: "ANSWER", value: i })}
+            >
+              {o}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- ATONM SLUT ----------
+  if (phase === "finished" && result) {
+    return (
+      <div>
+        {RestartButton}
+
+        <h3>Overblik over mulige retninger</h3>
+
+        <ul style={{ paddingLeft: "16px" }}>
+          {result.map((r) => (
+            <li key={r.id} style={{ marginBottom: "16px" }}>
+              <strong>{r.id}</strong>
+              <div style={{ whiteSpace: "pre-line", marginTop: "6px" }}>
+                {r.text}
+              </div>
+            </li>
           ))}
         </ul>
+
         <p>
           <em>Dette er ikke en anbefaling.</em>
+        </p>
+
+        <button onClick={() => setPhase("handoff")}>
+          Jeg vil gerne vide mere
+        </button>
+      </div>
+    );
+  }
+
+  // ---------- OVERGANG TIL GENEREL SAMTALE ----------
+  if (phase === "handoff") {
+    return (
+      <div>
+        {RestartButton}
+
+        <p>
+          Vi har nu afsluttet orienteringen. Jeg kan opsummere eller uddybe,
+          hvis der er noget i overblikket, du vil høre mere om.
+        </p>
+
+        <pre
+          style={{
+            background: "#f5f5f5",
+            padding: "12px",
+            fontSize: "0.85em",
+            marginTop: "12px",
+          }}
+        >
+          {JSON.stringify(handoffContext, null, 2)}
+        </pre>
+
+        <p style={{ marginTop: "12px" }}>
+          <em>
+            (Næste skridt: denne kontekst sendes til den generelle systemprompt)
+          </em>
         </p>
       </div>
     );
   }
 
-  // Aktivt spørgsmål
-  const q = QUESTIONS[state!.index];
-
-  return (
-    <div>
-      <h3>{q.text}</h3>
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {q.options.map((o, i) => (
-          <button
-            key={i}
-            onClick={() => send({ type: "ANSWER", value: i })}
-          >
-            {o}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+  return null;
 }
