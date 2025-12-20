@@ -4,7 +4,6 @@
 
 import type { Treatment } from "./types";
 
-
 export function narrow(
   treatments: Treatment[],
   answers: Record<string, number>
@@ -34,14 +33,23 @@ export function narrow(
   }
 
   // Q3 – arbejdsform (kropsligt / samtale / helhedsorienteret / ingen præference)
+  // Bevidst adskilt fra Q1: handler om *hvordan* der arbejdes
   if (answers.Q3 === 0) {
     // Kropsligt arbejde
-    result = result.filter((t) => t.experienceOrientation === "body");
+    result = result.filter(
+      (t) =>
+        t.experienceOrientation === "body" ||
+        t.interactionForm === "active"
+    );
   }
 
   if (answers.Q3 === 1) {
     // Samtale / refleksion
-    result = result.filter((t) => t.experienceOrientation === "mind");
+    result = result.filter(
+      (t) =>
+        t.experienceOrientation === "mind" ||
+        t.interactionForm === "dialog"
+    );
   }
 
   // Q4 – deltagelsesform (aktiv / balance / guidet / ingen præference)
@@ -57,12 +65,12 @@ export function narrow(
 
   // Q5 – forklaringsramme / abstraktion
   if (answers.Q5 === 0) {
-    // Meget vigtig forklaringsramme
+    // Forklaringsramme er vigtig
     result = result.filter((t) => t.abstractionLevel !== "concrete");
   }
 
   if (answers.Q5 === 2) {
-    // Ikke vigtig
+    // Forklaringsramme er ikke vigtig
     result = result.filter((t) => t.abstractionLevel === "concrete");
   }
 
