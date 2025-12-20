@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY, 
 });
 
 // Indlæs systemprompt (generel samtale)
