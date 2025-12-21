@@ -1,5 +1,5 @@
 // lib/atonm/renderProfileText.ts
-// Status: Ren render-funktion · ingen beslutningslogik
+// Status: Ren render-funktion · sproglig normalisering
 
 import type { HypotheticalUserProfile } from "./profile.schema";
 
@@ -9,23 +9,44 @@ export function renderHypotheticalProfileText(
   const lines: string[] = [];
 
   lines.push(
-    `Din måde at opleve situationer på beskrives her som primært ${profile.experienceOrientation}.`
+    `Du oplever det, du står i, som overvejende ${profile.experienceOrientation}.`
   );
 
   lines.push(
-    `Forløb opleves oftest som ${profile.situationPattern.replace("_", " ")}.`
+    `Forløb som dette beskrives oftest som ${profile.situationPattern.replace(
+      "_",
+      " "
+    )}.`
   );
 
   lines.push(
-    `Du foretrækker typisk en ${profile.participationPreference} rolle i processen.`
+    `Du foretrækker typisk en ${
+      profile.participationPreference === "active"
+        ? "aktiv"
+        : profile.participationPreference === "passive"
+        ? "mere modtagende"
+        : "afbalanceret"
+    } rolle i processen.`
   );
 
   lines.push(
-    `Guidance-niveauet hælder mod ${profile.guidancePreference.replace("_", " ")}.`
+    `Du hælder mod en ${
+      profile.guidancePreference === "guided"
+        ? "guidet"
+        : profile.guidancePreference === "self_directed"
+        ? "selvstyrende"
+        : "delt"
+    } tilgang.`
   );
 
   lines.push(
-    `Din tolerance for forklaringsrammer er vurderet som ${profile.abstractionTolerance}.`
+    `Forklaringsrammer opleves for dig som ${
+      profile.abstractionTolerance === "high"
+        ? "vigtige"
+        : profile.abstractionTolerance === "low"
+        ? "mindre vigtige"
+        : "relevante, men ikke afgørende"
+    }.`
   );
 
   return lines;
