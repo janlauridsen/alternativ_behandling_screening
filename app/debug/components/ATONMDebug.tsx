@@ -1,4 +1,3 @@
-// app/components/ATONMDebug.tsx
 
 "use client";
 
