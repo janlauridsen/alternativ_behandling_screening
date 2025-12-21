@@ -1,45 +1,43 @@
+
 // app/page.tsx
-// Public landing page – ATONM v3.3
-// Status: Statisk · ingen logik · ingen API-kald
+// Public entry – ATONM v3.4
+// Status: thin client · no free text · no logic
+
+"use client";
+
+import { useState } from "react";
 
 export default function Page() {
+  const [started, setStarted] = useState(false);
+
   return (
     <main
       style={{
-        maxWidth: "900px",
+        maxWidth: 900,
         margin: "80px auto",
-        padding: "0 16px",
+        padding: 16,
         fontFamily: "system-ui, sans-serif",
       }}
     >
       <h1>ATONM</h1>
 
-      <p style={{ maxWidth: "700px", opacity: 0.8 }}>
-        ATONM er et eksperimentelt, ikke-diagnostisk orienteringssystem.
-        <br />
-        Denne installation er i øjeblikket konfigureret til intern test og
-        validering.
-      </p>
+      {!started ? (
+        <>
+          <p>
+            ATONM er et ikke-diagnostisk orienteringsværktøj.
+            <br />
+            Det erstatter ikke professionel hjælp.
+          </p>
 
-      <hr style={{ margin: "32px 0", opacity: 0.3 }} />
-
-      <section>
-        <h2>Status</h2>
-        <ul>
-          <li>Version: v3.3 (frozen)</li>
-          <li>Formål: Arkitektur- og flowvalidering</li>
-          <li>Offentlig brugerflade: endnu ikke aktiv</li>
-        </ul>
-      </section>
-
-      <section style={{ marginTop: "32px" }}>
+          <button onClick={() => setStarted(true)}>
+            Start orientering
+          </button>
+        </>
+      ) : (
         <p style={{ opacity: 0.7 }}>
-          Hvis du er udvikler eller tester, findes der en intern debug-grænseflade.
+          (Public flow kobles på i næste iteration)
         </p>
-        <p>
-          <code>/debug</code>
-        </p>
-      </section>
+      )}
     </main>
   );
 }
