@@ -1,5 +1,5 @@
-// app/api/prompt-test/route.ts
-// LLM endpoint – guard-wired (v3.4)
+// app/api/handoff-chat/route.ts
+// Handoff LLM endpoint – guard-wired (v3.4)
 // Status: non-advisory · guard-first · telemetry enabled
 
 import { NextResponse } from "next/server";
@@ -15,33 +15,37 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Systemprompt
 const SYSTEM_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "docs/atonm/runtime/system-prompt-v2.txt"),
   "utf8"
 );
 
-// ATONM handoff-kontekst (v3.1 – konsistent med handoff-chat)
-const ATONM_CONTEXT_INSTRUCTION = `
-The following context comes from a completed ATONM orientation.
+// Handoff-instruktion (kort, normativ)
+const HANDOFF_INSTRUCTION = `
+You are continuing a conversation after an ATONM orientation.
 
-This context represents an orientational summary and remaining descriptive frames.
+The user has completed a structured, non-diagnostic narrowing process.
 
 You must:
-- Treat this context as established background.
-- Do not repeat or rephrase the ATONM orientation.
-- Do not reopen narrowing or suggest alternatives.
-- Do not recommend, prioritize, or assess suitability.
-- Continue the conversation in a reflective, exploratory manner.
+- Start by briefly summarizing the orientation in neutral language.
+- Mention remaining approaches descriptively, without recommending or prioritizing.
+- Do not reopen narrowing or ask diagnostic questions.
+- Do not give advice or promise outcomes.
+- End with one open-ended question asking what the user would like to explore further.
 
-This is not a treatment discussion.
+This is an orientation handoff, not a treatment discussion.
 `;
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { message, systemContext } = body;
+  const { message, handoffContext } = body;
 
   if (!message || typeof message !== "string") {
-    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid input" },
+      { status: 400 }
+    );
   }
 
   // ---------- GUARDS (v3.4) ----------
@@ -69,23 +73,19 @@ export async function POST(req: Request) {
       role: "system",
       content: SYSTEM_PROMPT,
     },
+    {
+      role: "system",
+      content: HANDOFF_INSTRUCTION,
+    },
   ];
 
-  // Bevar ATONM-kontekst efter handoff
-  if (systemContext?.source === "ATONM" && systemContext.handoffContext) {
+  if (handoffContext) {
     messages.push({
       role: "system",
-      content:
-        ATONM_CONTEXT_INSTRUCTION +
-        `\nATONM context:\n${JSON.stringify(
-          systemContext.handoffContext,
-          null,
-          2
-        )}`,
+      content: `ATONM context:\n${JSON.stringify(handoffContext, null, 2)}`,
     });
   }
 
-  // Brugerens aktuelle input
   messages.push({
     role: "user",
     content: message,
