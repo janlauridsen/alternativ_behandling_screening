@@ -5,6 +5,9 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 
+import { evaluateGuards } from "../../../lib/atonm/guards/evaluate";
+import { respond } from "../../../lib/atonm/guards/respond";
+
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -14,8 +17,6 @@ const SYSTEM_PROMPT = fs.readFileSync(
   "utf8"
 );
 
-
-// Handoff-instruktion – ATONM v3.1
 const HANDOFF_INSTRUCTION = `
 You are continuing a conversation after an ATONM orientation.
 
@@ -34,15 +35,25 @@ This handoff is explanatory and exploratory, not advisory.
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { handoffContext } = body;
+  const { message, handoffContext } = body;
 
-  if (!handoffContext) {
+  if (!message || typeof message !== "string") {
     return NextResponse.json(
-      { error: "Missing handoffContext" },
+      { error: "Invalid input" },
       { status: 400 }
     );
   }
 
+  // ---------- GUARDS (v3.5) ----------
+  const guard = await evaluateGuards(message);
+
+  if (guard) {
+    return NextResponse.json({
+      reply: respond(guard),
+    });
+  }
+
+  // ---------- LLM ----------
   const completion = await client.chat.completions.create({
     model: "gpt-4.1-mini",
     temperature: 0.4,
