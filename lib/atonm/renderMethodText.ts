@@ -1,7 +1,7 @@
 // lib/atonm/renderMethodText.ts
 // Status: Metodebeskrivelse · sproglig oprydning · ikke-rådgivende
 
-import type { Treatment } from "../../app/api/atonm-test/loadTreatments";
+import type { Treatment } from "./types";
 
 export function renderMethodText(
   id: string,
@@ -66,9 +66,7 @@ export function renderMethodText(
   if (method.physicalContact !== "none") {
     lines.push(
       `Der indgår ${
-        method.physicalContact === "direct"
-          ? "direkte"
-          : "let"
+        method.physicalContact === "direct" ? "direkte" : "let"
       } fysisk berøring.`
     );
   }
