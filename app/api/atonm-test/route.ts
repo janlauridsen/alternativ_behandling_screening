@@ -18,12 +18,9 @@ type ATONMState = {
   done: boolean;
 };
 
-type StartEvent = { type: "START" };
-type AnswerEvent = { type: "ANSWER"; value: number };
-
 type RequestBody = {
   state?: ATONMState;
-  event?: StartEvent | AnswerEvent;
+  event?: { type: "START" } | { type: "ANSWER"; value: number };
   intakeText?: string;
 };
 
@@ -33,14 +30,12 @@ function mapAnswersToOptionStrings(
   answers: Partial<Record<AnswerKey, number>>
 ): Record<string, string> {
   const result: Record<string, string> = {};
-
   for (const q of QUESTIONS) {
     const idx = answers[q.id as AnswerKey];
-    if (typeof idx === "number" && q.options[idx] !== undefined) {
+    if (typeof idx === "number" && q.options[idx]) {
       result[q.id] = q.options[idx];
     }
   }
-
   return result;
 }
 
@@ -55,51 +50,37 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!state || state.done) {
-    return NextResponse.json({ done: true });
-  }
+  if (!state) return NextResponse.json({ done: true });
 
   if (event?.type === "ANSWER") {
-    const answerKey = `Q${state.index + 1}` as AnswerKey;
-
-    const newAnswers = {
-      ...state.answers,
-      [answerKey]: event.value,
-    };
+    const key = `Q${state.index + 1}` as AnswerKey;
+    const newAnswers = { ...state.answers, [key]: event.value };
 
     const nextIndex = state.index + 1;
     const treatments = loadTreatments();
     const narrowed = narrow(treatments, newAnswers);
 
     if (nextIndex >= FINAL_STEP) {
-      const labeledAnswers = mapAnswersToOptionStrings(newAnswers);
-
-      const profile = deriveHypotheticalUserProfile(labeledAnswers);
-      const profileText = renderHypotheticalProfileText(profile);
-
-      const methods = narrowed.map((t) => ({
-        id: t.id,
-        text: renderMethodText(t.id, t).join("\n\n"),
-      }));
+      const labeled = mapAnswersToOptionStrings(newAnswers);
+      const profile = deriveHypotheticalUserProfile(labeled);
 
       return NextResponse.json({
         done: true,
-        profileText,
-        methods,
+        profileText: renderHypotheticalProfileText(profile, intakeText),
+        methods: narrowed.map((t) => ({
+          id: t.id,
+          text: renderMethodText(t.id, t).join("\n\n"),
+        })),
         handoffContext: {
           intakeText,
-          answers: labeledAnswers,
+          answers: labeled,
           remainingTreatments: narrowed.map((t) => t.id),
         },
       });
     }
 
     return NextResponse.json({
-      state: {
-        index: nextIndex,
-        answers: newAnswers,
-        done: false,
-      },
+      state: { index: nextIndex, answers: newAnswers, done: false },
       remainingCount: narrowed.length,
     });
   }
