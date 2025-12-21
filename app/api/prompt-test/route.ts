@@ -1,9 +1,15 @@
 // app/api/prompt-test/route.ts
+// LLM endpoint – guard-wired (v3.4)
+// Status: non-advisory · guard-first · telemetry enabled
 
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+
+import { evaluateGuards } from "../../../lib/guards/evaluate";
+import { respond } from "../../../lib/guards/respond";
+import { track } from "../../../lib/telemetry";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +19,6 @@ const SYSTEM_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "docs/atonm/runtime/system-prompt-v2.txt"),
   "utf8"
 );
-
 
 // ATONM handoff-kontekst (v3.1 – konsistent med handoff-chat)
 const ATONM_CONTEXT_INSTRUCTION = `
@@ -39,6 +44,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
+  // ---------- GUARDS (v3.4) ----------
+  const guard = evaluateGuards(message);
+
+  if (guard) {
+    track({
+      name: "guard_triggered",
+      timestamp: Date.now(),
+      context: {
+        version: "3.4",
+        source: "public",
+      },
+      payload: { guard },
+    });
+
+    return NextResponse.json({
+      reply: respond(guard),
+    });
+  }
+
+  // ---------- LLM ----------
   const messages: { role: "system" | "user"; content: string }[] = [
     {
       role: "system",
@@ -46,7 +71,7 @@ export async function POST(req: Request) {
     },
   ];
 
-  // Bevar ATONM-kontekst efter handoff (v3.1)
+  // Bevar ATONM-kontekst efter handoff
   if (systemContext?.source === "ATONM" && systemContext.handoffContext) {
     messages.push({
       role: "system",
@@ -76,4 +101,3 @@ export async function POST(req: Request) {
     reply: completion.choices[0].message.content,
   });
 }
-
