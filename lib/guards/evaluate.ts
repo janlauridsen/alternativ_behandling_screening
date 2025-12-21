@@ -1,5 +1,5 @@
 // File: lib/atonm/guards/evaluate.ts
-// Minimal guard evaluation – v1.1 (tone support)
+// Minimal guard evaluation – v1.2 (SafetyGate active)
 
 import { SafetyGate } from "../safety/SafetyGate";
 
@@ -12,11 +12,28 @@ export type GuardType =
 
 export function evaluateGuards(input: string): GuardType {
   // --- ATONM v3.5 ---
-  // SafetyGate is called, but result is intentionally ignored in Trin 2.
-  // This guarantees zero behavior change while wiring is validated.
-  SafetyGate.classify(input);
-  // --- end v3.5 wiring ---
+  // 1. Central SafetyGate (first-class signal)
+  const safety = SafetyGate.classify(input);
 
+  if (safety.classification !== "SAFE") {
+    switch (safety.classification) {
+      case "CRISIS":
+        return "crisis";
+
+      case "DESTRUCTIVE":
+      case "SEXUAL":
+      case "ILLEGAL":
+        return "do_not";
+
+      case "UNKNOWN":
+      default:
+        // Fail-fast: stop system on uncertainty
+        return "terminate";
+    }
+  }
+  // --- end v3.5 safety handling ---
+
+  // 2. Existing hardcoded guards (fallback, unchanged)
   const t = input.toLowerCase();
 
   // Krise
