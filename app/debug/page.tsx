@@ -1,87 +1,39 @@
-import ATONMDebug from "./components/ATONMDebug";
-import FoldoutText from "./components/FoldoutText";
+// app/debug/page.tsx
+// Status: Intern debug-side · observability only
 
-export default function Page() {
+"use client"
+
+import { useState } from "react"
+import StatePanel from "./components/StatePanel"
+import type { ATONMState } from "../../lib/state"
+
+export default function DebugPage() {
+  const [state, setState] = useState<ATONMState | null>(null)
+
+  async function startATONM() {
+    const res = await fetch("/api/atonm-test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event: { type: "START" } }),
+    })
+
+    const data = await res.json()
+    setState({
+      phase: "atonm",
+      ...data.state,
+    })
+  }
+
   return (
-    <main
-      style={{
-        maxWidth: "1200px",
-        margin: "40px auto",
-        padding: "0 16px",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
-      <h1>ATONM – intern test & debug</h1>
+    <main style={{ padding: "24px", fontFamily: "system-ui, sans-serif" }}>
+      <h1>ATONM Debug</h1>
 
-      <p style={{ maxWidth: "800px", opacity: 0.8 }}>
-        Denne side anvendes udelukkende til intern test, validering og
-        fejlsøgning af ATONM v3.1.  
-        Fokus er korrekthed, determinisme og sammenhæng – ikke brugeroplevelse.
-      </p>
+      <button onClick={startATONM}>
+        Start ATONM (debug)
+      </button>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "24px",
-          alignItems: "start",
-          marginTop: "32px",
-        }}
-      >
-        {/* ATONM */}
-        <FoldoutText
-          title="ATONM – orientering & indsnævring"
-          preview="Deterministisk, ikke-diagnostisk orienteringsmodel (v3.1)"
-        >
-          <p>
-            ATONM anvendes her som et struktureret orienteringsmodul baseret på
-            faste spørgsmål og monotonic narrowing.
-          </p>
-          <p>
-            UI til ATONM er i øjeblikket under genopbygning med fokus på
-            testbarhed og observability.
-          </p>
-          <p style={{ opacity: 0.7 }}>
-            Runtime testes via API (<code>/api/atonm-test</code>) og
-            dokumenteret output.
-          </p>
-
-          {/* DEBUG UI */}
-          <ATONMDebug />
-        </FoldoutText>
-
-        {/* HANDOFF / LLM */}
-        <FoldoutText
-          title="LLM & handoff"
-          preview="Overgang fra ATONM-orientering til samtale"
-        >
-          <p>
-            Handoff-chatten tester overgangen fra et afsluttet ATONM-forløb til
-            fri samtale med bevaret kontekst.
-          </p>
-          <p>Fokus er:</p>
-          <ul>
-            <li>korrekt brug af systemprompt</li>
-            <li>ingen genåbning af indsnævring</li>
-            <li>ingen rådgivning eller anbefaling</li>
-          </ul>
-          <p style={{ opacity: 0.7 }}>
-            Endpoint: <code>/api/handoff-chat</code>
-          </p>
-        </FoldoutText>
-      </div>
-
-      <hr style={{ margin: "48px 0", opacity: 0.3 }} />
-
-      <section style={{ maxWidth: "800px" }}>
-        <h2>Status</h2>
-        <ul>
-          <li>ATONM: v3.1 (locked)</li>
-          <li>Model: Type A (deskriptiv)</li>
-          <li>UI: intern / under opbygning</li>
-          <li>Formål: funktionel validering & fail-fast</li>
-        </ul>
-      </section>
+      <h3 style={{ marginTop: "24px" }}>State snapshot</h3>
+      <StatePanel state={state} />
     </main>
-  );
+  )
 }
