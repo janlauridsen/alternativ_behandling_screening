@@ -1,8 +1,12 @@
+// app/debug/components/ATONMDebug.tsx
+// Debug UI – ATONM v3.4
+// Status: intern · test & observability · telemetry wired (debug-only)
 
 "use client";
 
 import { useState } from "react";
 import { QUESTIONS } from "../../../lib/atonm/questions";
+import { track } from "../../../lib/telemetry";
 
 type AnswerKey = "Q1" | "Q2" | "Q3" | "Q4" | "Q5" | "Q6";
 
@@ -52,6 +56,23 @@ export default function ATONMDebug() {
     setHandoffContext(null);
   }
 
+  function start() {
+    // Telemetry v1 – debug only
+    track({
+      name: "flow_started",
+      timestamp: Date.now(),
+      context: {
+        version: "3.4",
+        source: "debug",
+      },
+      payload: {
+        entry: "debug",
+      },
+    });
+
+    send({ type: "START" });
+  }
+
   return (
     <div style={{ marginTop: 24 }}>
       <h3>ATONM Debug UI</h3>
@@ -73,7 +94,7 @@ export default function ATONMDebug() {
       )}
 
       <button onClick={reset}>Reset</button>{" "}
-      <button onClick={() => send({ type: "START" })}>Start</button>
+      <button onClick={start}>Start</button>
 
       <pre style={{ background: "#f6f6f6", padding: 12, marginTop: 16 }}>
         <strong>STATE</strong>
