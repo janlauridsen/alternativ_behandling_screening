@@ -1,5 +1,5 @@
-import FoldoutText from "./components/FoldoutText";
 import ATONMDebug from "./components/ATONMDebug";
+import FoldoutText from "./components/FoldoutText";
 
 export default function Page() {
   return (
