@@ -1,5 +1,5 @@
-
 import FoldoutText from "./components/FoldoutText";
+import ATONMDebug from "./components/ATONMDebug";
 
 export default function Page() {
   return (
@@ -45,6 +45,9 @@ export default function Page() {
             Runtime testes via API (<code>/api/atonm-test</code>) og
             dokumenteret output.
           </p>
+
+          {/* DEBUG UI */}
+          <ATONMDebug />
         </FoldoutText>
 
         {/* HANDOFF / LLM */}
@@ -56,9 +59,7 @@ export default function Page() {
             Handoff-chatten tester overgangen fra et afsluttet ATONM-forløb til
             fri samtale med bevaret kontekst.
           </p>
-          <p>
-            Fokus er:
-          </p>
+          <p>Fokus er:</p>
           <ul>
             <li>korrekt brug af systemprompt</li>
             <li>ingen genåbning af indsnævring</li>
