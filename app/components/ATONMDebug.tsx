@@ -1,3 +1,5 @@
+// app/components/ATONMDebug.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -11,38 +13,25 @@ type ATONMState = {
   done: boolean;
 };
 
-type ApiResponse = {
-  state?: ATONMState;
-  remainingCount?: number;
-  done?: boolean;
-  result?: any;
-  handoffContext?: any;
-};
-
 export default function ATONMDebug() {
   const [state, setState] = useState<ATONMState | null>(null);
   const [remainingCount, setRemainingCount] = useState<number | null>(null);
-  const [finalResult, setFinalResult] = useState<any>(null);
+  const [profileText, setProfileText] = useState<string[] | null>(null);
+  const [methods, setMethods] = useState<any[] | null>(null);
   const [handoffContext, setHandoffContext] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
 
   async function send(event: any) {
-    setLoading(true);
-
     const res = await fetch("/api/atonm-test", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        state,
-        event,
-      }),
+      body: JSON.stringify({ state, event }),
     });
 
-    const data: ApiResponse = await res.json();
-    setLoading(false);
+    const data = await res.json();
 
     if (data.done) {
-      setFinalResult(data.result);
+      setProfileText(data.profileText);
+      setMethods(data.methods);
       setHandoffContext(data.handoffContext);
       setState(null);
       return;
@@ -57,22 +46,18 @@ export default function ATONMDebug() {
   function reset() {
     setState(null);
     setRemainingCount(null);
-    setFinalResult(null);
+    setProfileText(null);
+    setMethods(null);
     setHandoffContext(null);
   }
 
-  /* ---------------- RENDER ---------------- */
-
   return (
     <div style={{ marginTop: 24 }}>
-      <h2>ATONM Debug UI</h2>
+      <h3>ATONM Debug UI</h3>
 
       <button onClick={reset}>Reset</button>{" "}
       <button onClick={() => send({ type: "START" })}>Start</button>
 
-      {loading && <p>Loading…</p>}
-
-      {/* STATE */}
       <pre style={{ background: "#f6f6f6", padding: 12, marginTop: 16 }}>
         <strong>STATE</strong>
         {"\n"}
@@ -81,43 +66,44 @@ export default function ATONMDebug() {
         <strong>Remaining</strong>: {remainingCount}
       </pre>
 
-      {/* QUESTION */}
-      {state && !state.done && (
-        <div style={{ marginTop: 16 }}>
-          <h3>
-            {QUESTIONS[state.index]?.id}: {QUESTIONS[state.index]?.text}
-          </h3>
-
-          {QUESTIONS[state.index]?.options.map((opt, i) => (
-            <button
-              key={i}
-              style={{ display: "block", marginBottom: 4 }}
-              onClick={() => send({ type: "ANSWER", value: i })}
-            >
+      {state && (
+        <div>
+          <h4>
+            {QUESTIONS[state.index].id}: {QUESTIONS[state.index].text}
+          </h4>
+          {QUESTIONS[state.index].options.map((opt, i) => (
+            <button key={i} onClick={() => send({ type: "ANSWER", value: i })}>
               [{i}] {opt}
             </button>
           ))}
         </div>
       )}
 
-      {/* FINAL */}
-      {finalResult && (
+      {profileText && (
         <div style={{ marginTop: 24 }}>
-          <h3>FINAL RESULT</h3>
-          <pre style={{ background: "#f0f0f0", padding: 12 }}>
-            {JSON.stringify(finalResult, null, 2)}
-          </pre>
+          <h4>PROFILE</h4>
+          {profileText.map((l, i) => (
+            <p key={i}>{l}</p>
+          ))}
         </div>
       )}
 
-      {/* HANDOFF */}
-      {handoffContext && (
+      {methods && (
         <div style={{ marginTop: 24 }}>
-          <h3>HANDOFF CONTEXT</h3>
-          <pre style={{ background: "#f0f0f0", padding: 12 }}>
-            {JSON.stringify(handoffContext, null, 2)}
-          </pre>
+          <h4>METHODS</h4>
+          {methods.map((m) => (
+            <div key={m.id} style={{ marginBottom: 16 }}>
+              <strong>{m.id}</strong>
+              <pre>{m.text}</pre>
+            </div>
+          ))}
         </div>
+      )}
+
+      {handoffContext && (
+        <pre style={{ background: "#f0f0f0", padding: 12 }}>
+          {JSON.stringify(handoffContext, null, 2)}
+        </pre>
       )}
     </div>
   );
