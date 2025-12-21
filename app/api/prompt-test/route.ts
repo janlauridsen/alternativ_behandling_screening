@@ -17,7 +17,6 @@ const SYSTEM_PROMPT = fs.readFileSync(
   "utf8"
 );
 
-// (Bevidst samme semantik som handoff-chat)
 export async function POST(req: Request) {
   const body = await req.json();
   const { message } = body;
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // ---------- GUARDS (v3.5) ----------
+  // ---------- INPUT GUARDS (v3.5) ----------
   const guard = await evaluateGuards(message);
 
   if (guard) {
@@ -43,18 +42,21 @@ export async function POST(req: Request) {
     model: "gpt-4.1-mini",
     temperature: 0.4,
     messages: [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT,
-      },
-      {
-        role: "user",
-        content: message,
-      },
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: message },
     ],
   });
 
-  return NextResponse.json({
-    reply: completion.choices[0].message.content,
-  });
+  // ---------- OUTPUT SAFETY (v3.5) ----------
+  const reply = completion.choices[0].message.content ?? "";
+
+  const outputGuard = await evaluateGuards(reply);
+
+  if (outputGuard) {
+    return NextResponse.json({
+      reply: respond(outputGuard),
+    });
+  }
+
+  return NextResponse.json({ reply });
 }
