@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { QUESTIONS } from "../atonm/questions";
+import { QUESTIONS } from "../../../lib/atonm/questions";
 
 type AnswerKey = "Q1" | "Q2" | "Q3" | "Q4" | "Q5" | "Q6";
 
