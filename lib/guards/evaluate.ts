@@ -1,7 +1,7 @@
 // File: lib/atonm/guards/evaluate.ts
 // Minimal guard evaluation – v1.3 (async, SafetyGate authoritative)
 
-import { SafetyGate } from "../safety/SafetyGate";
+import { SafetyGate } from "../atonm/safety/SafetyGate";
 
 export type GuardType =
   | "crisis"
