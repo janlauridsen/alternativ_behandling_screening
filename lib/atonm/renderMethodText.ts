@@ -1,95 +1,77 @@
 // lib/atonm/renderMethodText.ts
-// Status: Ren render-funktion · ingen beslutningslogik
+// Status: Metodebeskrivelse · sproglig oprydning · ikke-rådgivende
 
-export type TypeAMethod = {
-  experienceOrientation: "body" | "mind" | "mixed" | "abstract"
-  interactionForm: "passive" | "active" | "mixed" | "dialog"
-  guidanceLevel: "practitioner_led" | "shared" | "self_directed"
-  abstractionLevel: "concrete" | "mixed" | "interpretive"
-  structuringDegree: "fixed" | "semi_structured" | "open"
-  practitionerDependency: "low" | "medium" | "high"
-  temporalStructure: "bounded" | "recurring" | "ongoing"
-  physicalContact: "none" | "light" | "direct"
-}
+import type { Treatment } from "../../app/api/atonm-test/loadTreatments";
 
 export function renderMethodText(
-  methodName: string,
-  method: TypeAMethod
+  id: string,
+  method: Treatment
 ): string[] {
-  const paragraphs: string[] = []
+  const lines: string[] = [];
 
-  const experienceText =
-    method.experienceOrientation === "body"
-      ? "kropsligt"
-      : method.experienceOrientation === "mind"
-      ? "mentalt"
-      : method.experienceOrientation === "mixed"
-      ? "både kropsligt og mentalt"
-      : "fortolkende eller abstrakt"
+  lines.push(
+    `${id} beskrives som en tilgang, der overvejende arbejder ${
+      method.experienceOrientation === "body"
+        ? "kropsligt"
+        : method.experienceOrientation === "mind"
+        ? "mentalt"
+        : method.experienceOrientation === "mixed"
+        ? "både kropsligt og mentalt"
+        : "med mere abstrakte oplevelser"
+    }.`
+  );
 
-  const interactionText =
-    method.interactionForm === "passive"
-      ? "primært passiv"
-      : method.interactionForm === "active"
-      ? "primært aktiv"
-      : method.interactionForm === "dialog"
-      ? "dialogbaseret"
-      : "kombineret"
+  lines.push(
+    `Deltagelsen er typisk ${
+      method.interactionForm === "passive"
+        ? "overvejende modtagende"
+        : method.interactionForm === "active"
+        ? "aktiv"
+        : "kombineret"
+    }, og forløbet er som regel ${
+      method.guidanceLevel === "practitioner_led"
+        ? "behandlerstyret"
+        : method.guidanceLevel === "shared"
+        ? "delt"
+        : "selvstyret"
+    }.`
+  );
 
-  const guidanceText =
-    method.guidanceLevel === "practitioner_led"
-      ? "primært behandlerstyret"
-      : method.guidanceLevel === "self_directed"
-      ? "selvstyret"
-      : "delt ansvar"
+  lines.push(
+    `Rammen opleves ofte som ${
+      method.abstractionLevel === "concrete"
+        ? "konkret"
+        : method.abstractionLevel === "interpretive"
+        ? "fortolkende"
+        : "blandet"
+    } og ${
+      method.structuringDegree === "fixed"
+        ? "fast"
+        : method.structuringDegree === "semi_structured"
+        ? "delvist struktureret"
+        : "åben"
+    }.`
+  );
 
-  const abstractionText =
-    method.abstractionLevel === "concrete"
-      ? "overvejende konkret"
-      : method.abstractionLevel === "interpretive"
-      ? "overvejende fortolkende"
-      : "blandet"
+  lines.push(
+    `Forløbet omtales typisk som ${
+      method.temporalStructure === "recurring"
+        ? "noget der gentages over tid"
+        : method.temporalStructure === "ongoing"
+        ? "løbende"
+        : "afgrænset i tid"
+    }.`
+  );
 
-  const structuringText =
-    method.structuringDegree === "fixed"
-      ? "fast"
-      : method.structuringDegree === "open"
-      ? "åben"
-      : "delvist struktureret"
+  if (method.physicalContact !== "none") {
+    lines.push(
+      `Der indgår ${
+        method.physicalContact === "direct"
+          ? "direkte"
+          : "let"
+      } fysisk berøring.`
+    );
+  }
 
-  const temporalText =
-    method.temporalStructure === "bounded"
-      ? "et afgrænset forløb"
-      : method.temporalStructure === "ongoing"
-      ? "en løbende praksis"
-      : "noget der gentages over tid"
-
-  const contactText =
-    method.physicalContact === "none"
-      ? "ingen"
-      : method.physicalContact === "light"
-      ? "let"
-      : "direkte"
-
-  paragraphs.push(
-    `${methodName} beskrives som en tilgang, der primært arbejder med ${experienceText}.`
-  )
-
-  paragraphs.push(
-    `Deltagelsen er typisk ${interactionText}, og forløbet er overvejende ${guidanceText}.`
-  )
-
-  paragraphs.push(
-    `Rammen opleves ofte som ${abstractionText} og ${structuringText}.`
-  )
-
-  paragraphs.push(
-    `Forløbet omtales typisk som ${temporalText}.`
-  )
-
-  paragraphs.push(
-    `Der indgår ${contactText} fysisk berøring.`
-  )
-
-  return paragraphs
+  return lines;
 }
