@@ -1,5 +1,5 @@
 // File: lib/atonm/guards/evaluate.ts
-// Minimal guard evaluation – v1.2 (SafetyGate active)
+// Minimal guard evaluation – v1.3 (async, SafetyGate authoritative)
 
 import { SafetyGate } from "../safety/SafetyGate";
 
@@ -10,10 +10,9 @@ export type GuardType =
   | "humor"
   | null;
 
-export function evaluateGuards(input: string): GuardType {
+export async function evaluateGuards(input: string): Promise<GuardType> {
   // --- ATONM v3.5 ---
-  // 1. Central SafetyGate (first-class signal)
-  const safety = SafetyGate.classify(input);
+  const safety = await SafetyGate.classify(input);
 
   if (safety.classification !== "SAFE") {
     switch (safety.classification) {
@@ -27,23 +26,20 @@ export function evaluateGuards(input: string): GuardType {
 
       case "UNKNOWN":
       default:
-        // Fail-fast: stop system on uncertainty
         return "terminate";
     }
   }
   // --- end v3.5 safety handling ---
 
-  // 2. Existing hardcoded guards (fallback, unchanged)
+  // Fallback keyword guards (unchanged semantics)
   const t = input.toLowerCase();
 
-  // Krise
   if (
     t.includes("selvmord") ||
     t.includes("vil dø") ||
     t.includes("kan ikke leve")
   ) return "crisis";
 
-  // Humor / test
   if (
     t.includes("lol") ||
     t.includes("haha") ||
@@ -53,7 +49,6 @@ export function evaluateGuards(input: string): GuardType {
     t.includes("😂")
   ) return "humor";
 
-  // Do-not
   if (
     t.includes("porno") ||
     t.includes("sex") ||
@@ -62,7 +57,6 @@ export function evaluateGuards(input: string): GuardType {
     t.includes("våben")
   ) return "do_not";
 
-  // Terminate
   if (
     t.includes("religion") ||
     t.includes("politik") ||
