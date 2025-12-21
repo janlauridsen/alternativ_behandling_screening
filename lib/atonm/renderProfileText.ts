@@ -1,15 +1,22 @@
 // lib/atonm/renderProfileText.ts
-// Status: Ren render-funktion · sproglig normalisering
+// Status: Ren render-funktion · med spejling af intake
 
 import type { HypotheticalUserProfile } from "./profile.schema";
 
 export function renderHypotheticalProfileText(
-  profile: HypotheticalUserProfile
+  profile: HypotheticalUserProfile,
+  intakeText?: string
 ): string[] {
   const lines: string[] = [];
 
+  if (intakeText) {
+    lines.push(
+      `Du beskrev indledningsvis, at ${intakeText.trim()}.`
+    );
+  }
+
   lines.push(
-    `Du oplever det, du står i, som overvejende ${profile.experienceOrientation}.`
+    `Samlet set peger dine svar på, at du typisk oplever situationer på en ${profile.experienceOrientation} måde.`
   );
 
   lines.push(
@@ -27,16 +34,6 @@ export function renderHypotheticalProfileText(
         ? "mere modtagende"
         : "afbalanceret"
     } rolle i processen.`
-  );
-
-  lines.push(
-    `Du hælder mod en ${
-      profile.guidancePreference === "guided"
-        ? "guidet"
-        : profile.guidancePreference === "self_directed"
-        ? "selvstyrende"
-        : "delt"
-    } tilgang.`
   );
 
   lines.push(
