@@ -5,8 +5,8 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 
-import { evaluateGuards } from "../../../lib/atonm/guards/evaluate";
-import { respond } from "../../../lib/atonm/guards/respond";
+import { evaluateGuards } from "../../../lib/guards/evaluate";
+import { respond } from "../../../lib/guards/respond";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
